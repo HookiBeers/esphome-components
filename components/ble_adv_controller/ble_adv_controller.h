@@ -19,7 +19,7 @@ namespace bleadvcontroller {
 
 //  Base class to define a dynamic Configuration
 template < class BaseEntity >
-class BleAdvDynConfig: public BaseEntity
+class BleAdvDynConfig: public BaseEntity, public Component
 {
 public:
   void init(const char * name, const StringRef & parent_name) {
