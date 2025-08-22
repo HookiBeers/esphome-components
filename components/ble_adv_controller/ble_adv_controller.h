@@ -43,7 +43,7 @@ protected:
 /**
   BleAdvSelect: basic implementation of 'Select' to handle configuration choice from HA directly
  */
-class BleAdvSelect: public BleAdvDynConfig < select::Select > {
+class BleAdvSelect: public BleAdvDynConfig < select::Select >, public Component {
 protected:
   void control(const std::string &value) override;
   void sub_init() override;
@@ -52,7 +52,7 @@ protected:
 /**
   BleAdvNumber: basic implementation of 'Number' to handle duration(s) choice from HA directly
  */
-class BleAdvNumber: public BleAdvDynConfig < number::Number > {
+class BleAdvNumber: public BleAdvDynConfig < number::Number >, public Component {
 protected:
   void control(float value) override;
   void sub_init() override;
