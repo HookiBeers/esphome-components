@@ -257,7 +257,8 @@ class BleAdvRegistry:
             hdl_id = ID("ble_adv_static_handler", type=BleAdvHandler)
             cls.handler = cg.new_Pvariable(hdl_id)
             # cg.add(cls.handler.set_component_source("ble_adv_handler"))
-            cg.add(cls.handler.set_component_source(LOG_STR("ble_adv_handler")))
+            #cg.add(cls.handler.set_component_source(LOG_STR("ble_adv_handler")))
+            cg.add(cls.handler.set_component_source(cg.RawExpression('LOG_STR("ble_adv_handler")')))
             cg.add(cg.App.register_component(cls.handler))
             for encoding, params in BLE_ADV_ENCODERS.items():
                 for variant, param_variant in params["variants"].items():
