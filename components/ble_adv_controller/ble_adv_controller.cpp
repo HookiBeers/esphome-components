@@ -1,7 +1,7 @@
 #include "ble_adv_controller.h"
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
-#include "esphome/application.h"
+#include "esphome/core/application.h"
 
 namespace esphome {
 namespace bleadvcontroller {
