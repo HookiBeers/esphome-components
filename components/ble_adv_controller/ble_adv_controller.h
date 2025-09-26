@@ -58,18 +58,6 @@ protected:
   void sub_init() override;
 };
 
-class BleAdvSelectComponent : public select::Select, public Component {
-public:
-  void control(const std::string &value) override { /* přepošli do BleAdvDynConfig */ }
-  void sub_init() override { /* přepošli */ }
-};
-
-class BleAdvNumberComponent : public number::Number, public Component {
-public:
-  void control(float value) override { /* přepošli do BleAdvDynConfig */ }
-  void sub_init() override { /* přepošli */ }
-};
-
 /**
   BleAdvController:
     One physical device controlled == One Controller.
