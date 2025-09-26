@@ -99,8 +99,8 @@ void BleAdvEncoder::encode(std::vector< BleAdvParam > & params, Command &cmd, Co
     std::copy(this->header_.begin(), this->header_.end(), param.get_data_buf());
     uint8_t * buf = param.get_data_buf() + this->header_.size();
 
-    ESP_LOGD(this->id_.c_str(), "UUID: '0x%lX', index: %d, tx: %d, cmd: '0x%02X', args: [%d,%d,%d,%d]", 
-        cont.id_, cont.index_, cont.tx_count_, acmd.cmd_, acmd.args_[0], acmd.args_[1], acmd.args_[2], acmd.args_[3]);
+    //ESP_LOGD(this->id_.c_str(), "UUID: '0x%lX', index: %d, tx: %d, cmd: '0x%02X', args: [%d,%d,%d,%d]", 
+      //  cont.id_, cont.index_, cont.tx_count_, acmd.cmd_, acmd.args_[0], acmd.args_[1], acmd.args_[2], acmd.args_[3]);
 
     this->encode(buf, acmd, cont);
     param.set_data_len(this->len_ + this->header_.size());    
@@ -176,7 +176,7 @@ BleAdvEncoder * BleAdvHandler::get_encoder(const std::string & id) {
       return encoder;
     }
   }
-  ESP_LOGE(TAG, "No Encoder with id: %s", id.c_str());
+  //ESP_LOGE(TAG, "No Encoder with id: %s", id.c_str());
   return nullptr;
 }
 
@@ -186,7 +186,7 @@ BleAdvEncoder * BleAdvHandler::get_encoder(const std::string & encoding, const s
       return encoder;
     }
   }
-  ESP_LOGE(TAG, "No Encoder with encoding: %s and variant: %s", encoding.c_str(), variant.c_str());
+  //ESP_LOGE(TAG, "No Encoder with encoding: %s and variant: %s", encoding.c_str(), variant.c_str());
   return nullptr;
 }
 
@@ -204,15 +204,15 @@ uint16_t BleAdvHandler::add_to_advertiser(std::vector< BleAdvParam > & params) {
   uint32_t msg_id = ++this->id_count;
   for (auto & param : params) {
     this->packets_.emplace_back(BleAdvProcess(msg_id, std::move(param)));
-    ESP_LOGD(TAG, "request start advertising - %ld: %s", msg_id, 
-                esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
+ //   ESP_LOGD(TAG, "request start advertising - %ld: %s", msg_id, 
+   //             esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
   }
   params.clear(); // As we moved the content, just to be sure no caller will re use it
   return this->id_count;
 }
 
 void BleAdvHandler::remove_from_advertiser(uint16_t msg_id) {
-  ESP_LOGD(TAG, "request stop advertising - %d", msg_id);
+  //ESP_LOGD(TAG, "request stop advertising - %d", msg_id);
   for (auto & param : this->packets_) {
     if (param.id_ == msg_id) {
       param.to_be_removed_ = true;
@@ -229,8 +229,8 @@ bool BleAdvHandler::identify_param(const BleAdvParam & param, bool ignore_ble_pa
     ControllerParam_t cont;
     Command cmd(CommandType::CUSTOM);
     if(encoder->decode(param, cmd, cont)) {
-      ESP_LOGI(encoder->get_id().c_str(), "Decoded OK - tx: %d, cmd: '0x%02X', Args: [%d,%d,%d,%d]",
-               cont.tx_count_, cmd.cmd_, cmd.args_[0], cmd.args_[1], cmd.args_[2], cmd.args_[3]);
+      //ESP_LOGI(encoder->get_id().c_str(), "Decoded OK - tx: %d, cmd: '0x%02X', Args: [%d,%d,%d,%d]",
+             //  cont.tx_count_, cmd.cmd_, cmd.args_[0], cmd.args_[1], cmd.args_[2], cmd.args_[3]);
 
       std::string config_str = "config: \nble_adv_controller:";
       config_str += "\n  - id: my_controller_id";
@@ -240,7 +240,7 @@ bool BleAdvHandler::identify_param(const BleAdvParam & param, bool ignore_ble_pa
       if (cont.index_ != 0) {
         config_str += "\n    index: %d";
       }
-      ESP_LOGI(TAG, config_str.c_str(), encoder->get_encoding().c_str(), encoder->get_variant().c_str(), cont.id_, cont.index_);
+     // ESP_LOGI(TAG, config_str.c_str(), encoder->get_encoding().c_str(), encoder->get_variant().c_str(), cont.id_, cont.index_);
       
       // Re encoding with the same parameters to check if it gives the same output
       std::vector< BleAdvParam > params;
@@ -251,12 +251,12 @@ bool BleAdvHandler::identify_param(const BleAdvParam & param, bool ignore_ble_pa
       }
       encoder->encode(params, cmd, cont);
       BleAdvParam & fparam = params.back();
-      ESP_LOGD(TAG, "enc - %s", esphome::format_hex_pretty(fparam.get_full_buf(), fparam.get_full_len()).c_str());
-      if (std::equal(param.get_const_data_buf(), param.get_const_data_buf() + param.get_data_len(), fparam.get_data_buf())) {
-        ESP_LOGI(TAG, "Decoded / Re-encoded with NO DIFF");
-      } else {
-        ESP_LOGE(TAG, "DIFF after Decode / Re-encode");
-      }
+      //ESP_LOGD(TAG, "enc - %s", esphome::format_hex_pretty(fparam.get_full_buf(), fparam.get_full_len()).c_str());
+     // if (std::equal(param.get_const_data_buf(), param.get_const_data_buf() + param.get_data_len(), fparam.get_data_buf())) {
+       // ESP_LOGI(TAG, "Decoded / Re-encoded with NO DIFF");
+     // } else {
+       // ESP_LOGE(TAG, "DIFF after Decode / Re-encode");
+     // }
 
       return true;
     } 
@@ -268,7 +268,7 @@ bool BleAdvHandler::identify_param(const BleAdvParam & param, bool ignore_ble_pa
 void BleAdvHandler::on_raw_decode(std::string raw) {
   BleAdvParam param;
   param.from_hex_string(raw);
-  ESP_LOGD(TAG, "raw - %s", esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
+ // ESP_LOGD(TAG, "raw - %s", esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
   this->identify_param(param, true);
 }
 #endif
@@ -297,7 +297,7 @@ void BleAdvHandler::capture(const esp32_ble_tracker::ESPBTDevice & device, bool 
   // Check if not already received in the last 300s
   auto idx = std::find(this->listen_packets_.begin(), this->listen_packets_.end(), param);
   if (idx == this->listen_packets_.end()) {
-    ESP_LOGD(TAG, "raw - %s", esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
+   // ESP_LOGD(TAG, "raw - %s", esphome::format_hex_pretty(param.get_full_buf(), param.get_full_len()).c_str());
     param.duration_ = millis() + (uint32_t)rem_time * 1000;
     this->identify_param(param, ignore_ble_param);
     this->listen_packets_.emplace_back(std::move(param));
