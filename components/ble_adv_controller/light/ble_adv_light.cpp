@@ -78,8 +78,10 @@ void BleAdvLight::write_state(light::LightState *state) {
     float cwf, wwf;
     if (this->get_parent()->is_reversed()) {
       eff_values.as_cwww(&wwf, &cwf, this->constant_brightness_);
+      //puvodni verze -  eff_values.as_cwww(&wwf, &cwf, 0, this->constant_brightness_);
     } else {
       eff_values.as_cwww(&cwf, &wwf, this->constant_brightness_);
+      //puvodni verze -  eff_values.as_cwww(&wwf, &cwf, 0, this->constant_brightness_);
     }
     ESP_LOGD(TAG, "Updating Cold: %.0f%%, Warm: %.0f%%", cwf*100, wwf*100);
     this->command(CommandType::LIGHT_WCOLOR, (uint8_t) (cwf*255), (uint8_t) (wwf*255));
