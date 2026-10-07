@@ -98,6 +98,7 @@ class BleAdvController : public Component, public EntityBase
 #endif
 {
 public:
+  float get_setup_priority() const override { return 300.0f; }  // start after Bluetooth
   void setup() override;
   void loop() override;
   virtual void dump_config() override;
