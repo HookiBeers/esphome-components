@@ -139,9 +139,9 @@ void BleAdvController::setup() {
 }  */
 
 void BleAdvController::dump_config() {
-   char oid_buf[OBJECT_ID_MAX_LEN];
+  char oid_buf[OBJECT_ID_MAX_LEN];
  // ESP_LOGCONFIG(TAG, "BleAdvController '%s'", this->get_object_id_to(oid_buf));
-  ESP_LOGCONFIG(TAG, "BleAdvController '%s'", this->get_object_id().c_str());
+  ESP_LOGCONFIG(TAG, "BleAdvController '%s'", this->get_object_id_to(oid_buf).c_str());
   ESP_LOGCONFIG(TAG, "  Hash ID '%lX'", this->params_.id_);
   ESP_LOGCONFIG(TAG, "  Index '%d'", this->params_.index_);
   ESP_LOGCONFIG(TAG, "  Transmission Min Duration: %ld ms", this->get_min_tx_duration());
