@@ -258,7 +258,6 @@ class BleAdvRegistry:
             cls.handler = cg.new_Pvariable(hdl_id)
             # cg.add(cls.handler.set_component_source("ble_adv_handler"))
             #cg.add(cls.handler.set_component_source(LOG_STR("ble_adv_handler")))
-            cg.add(cls.handler.set_component_source_(cg.RawExpression('LOG_STR("ble_adv_handler")')))
             cg.add(cg.App.register_component_(cls.handler))
             
             #cg.add(cls.handler.set_component_source(cg.RawExpression('LOG_STR("ble_adv_handler")')))
