@@ -23,6 +23,19 @@ class BleAdvDynConfig: public BaseEntity
 {
 public:
   void init(const char * name, const StringRef & parent_name) {
+  // Name must stay valid -> keep the built string as a member
+  this->ref_name_ = std::string(parent_name) + " - " + std::string(name);
+
+  // name, object_id_hash, packed flags (entity_category in bits 26-27)
+  this->configure_entity_(
+      this->ref_name_.c_str(),
+      fnv1_hash(this->ref_name_),
+      static_cast<uint32_t>(EntityCategory::ENTITY_CATEGORY_CONFIG) << 26);
+
+  // sub_init() must restore the value AND call publish_state() itself
+  this->sub_init();
+}
+ /** void init(const char * name, const StringRef & parent_name) {
     // Due to the use of sh... StringRef, we are forced to keep a ref on the built string...
     this->ref_name_ = std::string(parent_name) + " - " + std::string(name);
     this->set_object_id(this->ref_name_.c_str());
@@ -30,7 +43,7 @@ public:
     this->set_entity_category(EntityCategory::ENTITY_CATEGORY_CONFIG);
     this->sub_init();
     this->publish_state(this->state);
-  }
+  } */
 
   // register to App and restore from config / saved data
   virtual void sub_init() = 0;
