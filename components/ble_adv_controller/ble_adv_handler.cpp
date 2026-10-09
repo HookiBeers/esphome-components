@@ -1,6 +1,7 @@
 #include "ble_adv_handler.h"
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
+#include "esphome/components/esp32_ble/ble.h"
 
 #ifdef USE_ESP32_BLE_CLIENT
 #include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
@@ -306,6 +307,9 @@ void BleAdvHandler::capture(const esp32_ble_tracker::ESPBTDevice & device, bool 
 #endif
 
 void BleAdvHandler::loop() {
+  if (esp32_ble::global_ble == nullptr || !esp32_ble::global_ble->is_active()) {
+    return;   // BLE stack not ready: keep packets queued
+  }
   if (this->adv_stop_time_ == 0) {
     // No packet is being advertised, process with clean-up IF already processed once and requested for removal
     this->packets_.remove_if([&](BleAdvProcess & p){ return p.processed_once_ && p.to_be_removed_; } );
