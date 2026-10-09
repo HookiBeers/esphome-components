@@ -308,7 +308,13 @@ void BleAdvHandler::capture(const esp32_ble_tracker::ESPBTDevice & device, bool 
 
 void BleAdvHandler::loop() {
   if (esp32_ble::global_ble == nullptr || !esp32_ble::global_ble->is_active()) {
-    return;   // BLE stack not ready: keep packets queued
+    static uint32_t last_warn = 0;
+    if (!this->packets_.empty() && (millis() - last_warn) > 5000) {
+      last_warn = millis();
+      ESP_LOGW(TAG, "BLE not active (global_ble %s), %d packet(s) waiting",
+               esp32_ble::global_ble == nullptr ? "is NULL" : "set", (int) this->packets_.size());
+    }
+    return;
   }
   if (this->adv_stop_time_ == 0) {
     // No packet is being advertised, process with clean-up IF already processed once and requested for removal
