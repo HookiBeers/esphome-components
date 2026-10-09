@@ -21,8 +21,10 @@ from .const import (
     CONF_BLE_ADV_SHOW_CONFIG,
 )
 
-AUTO_LOAD = ["esp32_ble", "select", "number"]
-DEPENDENCIES = ["esp32"]
+AUTO_LOAD = ["select", "number"]
+DEPENDENCIES = ["esp32", "esp32_ble"]
+#AUTO_LOAD = ["esp32_ble", "select", "number"]
+#DEPENDENCIES = ["esp32"]
 MULTI_CONF = True
 
 bleadvcontroller_ns = cg.esphome_ns.namespace('bleadvcontroller')
