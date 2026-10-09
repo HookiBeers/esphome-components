@@ -306,6 +306,28 @@ void BleAdvHandler::capture(const esp32_ble_tracker::ESPBTDevice & device, bool 
 }
 #endif
 
+static esp_gap_ble_cb_t orig_gap_cb = nullptr;
+static bool gap_wrapped = false;
+
+static void gap_logger(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
+  switch (event) {
+    case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+      ESP_LOGW(TAG, "GAP raw adv data set, status=%d", param->adv_data_raw_cmpl.status);
+      break;
+    case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+      ESP_LOGW(TAG, "GAP adv start, status=%d", param->adv_start_cmpl.status);
+      break;
+    case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
+      ESP_LOGW(TAG, "GAP adv stop, status=%d", param->adv_stop_cmpl.status);
+      break;
+    default:
+      break;
+  }
+  if (orig_gap_cb != nullptr) {
+    orig_gap_cb(event, param);
+  }
+}
+
 void BleAdvHandler::loop() {
   if (esp32_ble::global_ble == nullptr || !esp32_ble::global_ble->is_active()) {
     static uint32_t last_warn = 0;
@@ -313,6 +335,12 @@ void BleAdvHandler::loop() {
       last_warn = millis();
       ESP_LOGW(TAG, "BLE not active (global_ble %s), %d packet(s) waiting",
                esp32_ble::global_ble == nullptr ? "is NULL" : "set", (int) this->packets_.size());
+    if (!gap_wrapped) {
+    orig_gap_cb = esp_ble_gap_get_callback();
+    esp_ble_gap_register_callback(gap_logger);
+    gap_wrapped = true;
+    ESP_LOGW(TAG, "BLE active, GAP logger installed (orig cb %s)", orig_gap_cb ? "set" : "NULL");
+      }
     }
     return;
   }
