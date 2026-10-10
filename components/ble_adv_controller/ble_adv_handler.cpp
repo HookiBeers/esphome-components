@@ -307,7 +307,8 @@ void BleAdvHandler::capture(const esp32_ble_tracker::ESPBTDevice & device, bool 
   }
 }
 #endif
-
+//   metoda pro logovani
+/*
 static esp_gap_ble_cb_t orig_gap_cb = nullptr;
 static bool gap_wrapped = false;
 
@@ -328,7 +329,7 @@ static void gap_logger(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
   if (orig_gap_cb != nullptr) {
     orig_gap_cb(event, param);
   }
-}
+}  */
 
 static bool own_ble_up = false;
 
@@ -347,22 +348,22 @@ static bool ble_ready() {
   if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_IDLE) {
     esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     err = esp_bt_controller_init(&cfg);
-    ESP_LOGW(TAG, "own BLE: controller_init -> %s", esp_err_to_name(err));
+    ESP_LOGI(TAG, "own BLE: controller_init -> %s", esp_err_to_name(err));
     if (err != ESP_OK) return false;
     while (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_IDLE)
       ;
   }
   if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_INITED) {
     err = esp_bt_controller_enable(ESP_BT_MODE_BLE);
-    ESP_LOGW(TAG, "own BLE: controller_enable -> %s", esp_err_to_name(err));
+    ESP_LOGI(TAG, "own BLE: controller_enable -> %s", esp_err_to_name(err));
     if (err != ESP_OK) return false;
   }
   esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
   err = esp_bluedroid_init();
-  ESP_LOGW(TAG, "own BLE: bluedroid_init -> %s", esp_err_to_name(err));
+  ESP_LOGI(TAG, "own BLE: bluedroid_init -> %s", esp_err_to_name(err));
   if (err != ESP_OK) return false;
   err = esp_bluedroid_enable();
-  ESP_LOGW(TAG, "own BLE: bluedroid_enable -> %s", esp_err_to_name(err));
+  ESP_LOGI(TAG, "own BLE: bluedroid_enable -> %s", esp_err_to_name(err));
   if (err != ESP_OK) return false;
   own_ble_up = true;
   return true;
@@ -378,12 +379,14 @@ void BleAdvHandler::loop() {
     }
     return;
   }
+  //   metoda pro logovani
+  /*
   if (!gap_wrapped) {
     orig_gap_cb = esp_ble_gap_get_callback();
     esp_ble_gap_register_callback(gap_logger);
     gap_wrapped = true;
     ESP_LOGW(TAG, "BLE active, GAP logger installed (orig cb %s)", orig_gap_cb ? "set" : "NULL");
-  }
+  } */
   if (this->adv_stop_time_ == 0) {
     // No packet is being advertised, process with clean-up IF already processed once and requested for removal
     this->packets_.remove_if([&](BleAdvProcess & p){ return p.processed_once_ && p.to_be_removed_; } );
