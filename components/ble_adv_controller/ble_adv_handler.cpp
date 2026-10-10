@@ -335,14 +335,14 @@ void BleAdvHandler::loop() {
       last_warn = millis();
       ESP_LOGW(TAG, "BLE not active (global_ble %s), %d packet(s) waiting",
                esp32_ble::global_ble == nullptr ? "is NULL" : "set", (int) this->packets_.size());
-    if (!gap_wrapped) {
+    }
+    return;
+  }
+  if (!gap_wrapped) {
     orig_gap_cb = esp_ble_gap_get_callback();
     esp_ble_gap_register_callback(gap_logger);
     gap_wrapped = true;
     ESP_LOGW(TAG, "BLE active, GAP logger installed (orig cb %s)", orig_gap_cb ? "set" : "NULL");
-      }
-    }
-    return;
   }
   if (this->adv_stop_time_ == 0) {
     // No packet is being advertised, process with clean-up IF already processed once and requested for removal
