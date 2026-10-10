@@ -1,6 +1,8 @@
 #include "ble_adv_handler.h"
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
+#include <esp_bt.h>
+#include <esp_bt_main.h>
 #include "esphome/components/esp32_ble/ble.h"
 
 #ifdef USE_ESP32_BLE_CLIENT
@@ -328,12 +330,50 @@ static void gap_logger(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
   }
 }
 
+static bool own_ble_up = false;
+
+// true when BLE can be used; brings the stack up itself only if esp32_ble is absent
+static bool ble_ready() {
+  if (esp32_ble::global_ble != nullptr)
+    return esp32_ble::global_ble->is_active();   // esp32_ble exists, let it do the job
+  if (own_ble_up)
+    return true;
+  static bool tried = false;
+  if (tried)
+    return false;
+  tried = true;
+
+  esp_err_t err;
+  if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_IDLE) {
+    esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    err = esp_bt_controller_init(&cfg);
+    ESP_LOGW(TAG, "own BLE: controller_init -> %s", esp_err_to_name(err));
+    if (err != ESP_OK) return false;
+    while (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_IDLE)
+      ;
+  }
+  if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_INITED) {
+    err = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+    ESP_LOGW(TAG, "own BLE: controller_enable -> %s", esp_err_to_name(err));
+    if (err != ESP_OK) return false;
+  }
+  esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
+  err = esp_bluedroid_init();
+  ESP_LOGW(TAG, "own BLE: bluedroid_init -> %s", esp_err_to_name(err));
+  if (err != ESP_OK) return false;
+  err = esp_bluedroid_enable();
+  ESP_LOGW(TAG, "own BLE: bluedroid_enable -> %s", esp_err_to_name(err));
+  if (err != ESP_OK) return false;
+  own_ble_up = true;
+  return true;
+}
+
 void BleAdvHandler::loop() {
-  if (esp32_ble::global_ble == nullptr || !esp32_ble::global_ble->is_active()) {
+  if (!ble_ready()) {
     static uint32_t last_warn = 0;
     if (!this->packets_.empty() && (millis() - last_warn) > 5000) {
       last_warn = millis();
-      ESP_LOGW(TAG, "BLE not active (global_ble %s), %d packet(s) waiting",
+      ESP_LOGW(TAG, "BLE not ready (global_ble %s), %d packet(s) waiting",
                esp32_ble::global_ble == nullptr ? "is NULL" : "set", (int) this->packets_.size());
     }
     return;
